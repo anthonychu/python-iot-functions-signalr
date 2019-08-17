@@ -40,7 +40,6 @@ def on_disconnect(client, userdata, rc):
 
 def on_message(client, userdata, msg):
     print("Message received: %s" % msg)
-    pass
 
 
 def on_publish(client, userdata, mid):
@@ -71,7 +70,7 @@ client.on_message = on_message
 client.on_publish = on_publish
 
 client.username_pw_set(iot.hub_user, iot.generate_sas_token())
-client.tls_set(tls_version=ssl.PROTOCOL_TLSv1)
+client.tls_set()
 client.connect(config.hub_address, 8883)
 
 client.loop_start()
