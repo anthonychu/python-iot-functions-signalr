@@ -1,0 +1,20 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "event",
+      "direction": "in",
+      "eventHubName": "iotlab-antchu",
+      "connection": "EventHubConnectionString",
+      "cardinality": "one",
+      "consumerGroup": "$Default"
+    },
+    {
+      "type": "signalR",
+      "direction": "out",
+      "name": "$return",
+      "hubName": "devicemessages"
+    }
+  ]
+}
