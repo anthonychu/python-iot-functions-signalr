@@ -1,0 +1,51 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=960px, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>IoT Hub + Azure Functions + SignalR Service</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body style="margin-top: 24px">
+  <div class="container">
+
+    <h2>Temperature: <span id="temperature"></span></h2>
+    <canvas id="temperatureChart" width="900" height="200"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@3.0.0/dist/browser/signalr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/smoothie@1.35.0/smoothie.min.js"></script>
+  <script>
+    const temperature = document.getElementById('temperature')
+
+    const chartSettings = {
+      maxValueScale:1.002, 
+      minValueScale:0.998,
+      millisPerPixel: 30
+    }
+    const chartDelay = 0
+
+    const temperatureChart = new SmoothieChart(chartSettings)
+    temperatureChart.streamTo(document.getElementById("temperatureChart"), chartDelay)
+    const temperatureSeries = new TimeSeries()
+    temperatureChart.addTimeSeries(temperatureSeries, { lineWidth:2, strokeStyle: '#00ff00'})
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:7071/api')
+      .withAutomaticReconnect()
+      .build()
+    
+    connection.on('newDeviceMessage', message => {
+      console.log(JSON.stringify(message, null, 2))
+      temperature.textContent = message.temperature.toFixed(2) + '°C'
+      temperatureSeries.append(new Date().getTime(), message.temperature)
+    })
+
+    connection.start()
+      .then(function() {
+        console.log('connected')
+      })
+      .catch(console.error)
+  </script>
+</body>
+</html>
